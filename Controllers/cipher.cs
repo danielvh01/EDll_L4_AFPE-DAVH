@@ -29,8 +29,7 @@ namespace EDll_L4_AFPE_DAVH.Controllers
         public IActionResult Post(string method,[FromForm] FileUPloadAPI objFile, [FromForm] string key)
         {
 
-            try
-            {
+            
                 if (objFile.FILE != null)
                 {
                     if (objFile.FILE.Length > 0)
@@ -54,7 +53,7 @@ namespace EDll_L4_AFPE_DAVH.Controllers
                             string name = objFile.FILE.FileName;
                             ICaesarCipher CaesarCipher = new Caesar();
 
-                            byte[] textCompressed = CaesarCipher.Cipher(Encoding.UTF8.GetString(content), key);
+                            byte[] textCompressed = CaesarCipher.Cipher(Encoding.GetEncoding(28591).GetString(content), key);
 
                             return File(textCompressed, "application/text", name.Substring(0, name.Length - 4) + ".csr");
                         }
@@ -76,11 +75,7 @@ namespace EDll_L4_AFPE_DAVH.Controllers
                 {
                     return StatusCode(500);
                 }
-            }
-            catch
-            {
-                return StatusCode(500);
-            }
+            
 
 
         }
@@ -89,8 +84,7 @@ namespace EDll_L4_AFPE_DAVH.Controllers
         public IActionResult Post([FromForm] FileUPloadAPI objFile, [FromForm] string key)
         {
 
-            try
-            {
+            
                 if (objFile.FILE != null)
                 {
                     if (objFile.FILE.Length > 0)
@@ -115,7 +109,7 @@ namespace EDll_L4_AFPE_DAVH.Controllers
                             string defName = name.Substring(0, name.Length - 4) + ".txt";
                             ICaesarCipher CaesarCipher = new Caesar();
 
-                            byte[] textDecompressed = CaesarCipher.Decipher(Encoding.UTF8.GetString(content), key);
+                            byte[] textDecompressed = CaesarCipher.Decipher(Encoding.GetEncoding(28591).GetString(content), key);
 
                             return File(textDecompressed, "application/text", defName);
                         }
@@ -143,11 +137,7 @@ namespace EDll_L4_AFPE_DAVH.Controllers
                 {
                     return StatusCode(500);
                 }
-            }
-            catch
-            {
-                return StatusCode(500);
-            }
+           
 
 
         }
