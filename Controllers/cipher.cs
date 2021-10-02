@@ -23,15 +23,12 @@ namespace EDll_L4_AFPE_DAVH.Controllers
 
         public class FileUPloadAPI
         {
-            public IFormFile FILE { get; set; }
+            public IFormFile FILE { get; set; }            
         }
-        public class Key
+        [HttpPost("cipher/{method}")]
+        public IActionResult Post(string method,[FromForm] FileUPloadAPI objFile, [FromForm] string key)
         {
-            public string KEY { get; set; }
-        }
 
-        public IActionResult Post(string method,[FromForm] FileUPloadAPI? objFile, [FromForm] string key)
-        {
             try
             {
                 if (objFile.FILE != null)
@@ -54,46 +51,17 @@ namespace EDll_L4_AFPE_DAVH.Controllers
 
                         if (method == "cesar")
                         {
-                             ICaesarCipher CaesarCipher = new Caesar();
+                            string name = objFile.FILE.FileName;
+                            ICaesarCipher CaesarCipher = new Caesar();
 
-                            byte[] textCompressed = CaesarCipher.Cipher(Encoding.UTF8.GetString(content));
+                            byte[] textCompressed = CaesarCipher.Cipher(Encoding.UTF8.GetString(content), key);
 
-
-
-                            CompressModel compressObj = new CompressModel
-                            {
-                                originalFileName = objFile.FILE.FileName,
-                                CompressedFileName_Route = name + ".huff" + "-->" + _environment.WebRootPath + "\\Upload\\",
-                                rateOfCompression = Math.Round((Convert.ToDouble(textCompressed.Length) / Convert.ToDouble(content.Length)), 2).ToString(),
-                                compressionFactor = Math.Round((Convert.ToDouble(content.Length) / Convert.ToDouble(textCompressed.Length)), 2).ToString(),
-                                reductionPercentage = Math.Round((Convert.ToDouble(textCompressed.Length) / Convert.ToDouble(content.Length)) * 100, 2).ToString() + "%",
-                            };
-
-                            Singleton.Instance.compressions.InsertAtStart(compressObj);
-
-                            return File(textCompressed, "application/text", name + ".huff");
+                            return File(textCompressed, "application/text", name.Substring(0, name.Length - 4) + ".csr");
                         }
-                        else if (method == "lzw")
-                        {
-                            ILZWCompressor compressor = new LZW();
-
-                            byte[] textCompressed = compressor.Compress(Encoding.UTF8.GetString(content));
-
-
-
-                            CompressModel compressObj = new CompressModel
-                            {
-                                originalFileName = objFile.FILE.FileName,
-                                CompressedFileName_Route = name + ".lzw" + "-->" + _environment.WebRootPath + "\\Upload\\",
-                                rateOfCompression = Math.Round((Convert.ToDouble(textCompressed.Length) / Convert.ToDouble(content.Length)), 2).ToString(),
-                                compressionFactor = Math.Round((Convert.ToDouble(content.Length) / Convert.ToDouble(textCompressed.Length)), 2).ToString(),
-                                reductionPercentage = Math.Round((Convert.ToDouble(textCompressed.Length) / Convert.ToDouble(content.Length)) * 100, 2).ToString() + "%",
-                            };
-
-                            Singleton.Instance.compressions.InsertAtStart(compressObj);
-
-                            return File(textCompressed, "application/text", name + ".lzw");
-                        }
+                        //else if (method == "zigzag")
+                        //{                            
+                        //      return File(textCompressed, "application/text", name + ".zz");
+                        //}
                         else
                         {
                             return StatusCode(500);
@@ -113,6 +81,74 @@ namespace EDll_L4_AFPE_DAVH.Controllers
             {
                 return StatusCode(500);
             }
+
+
+        }
+
+        [HttpPost("decipher")]
+        public IActionResult Post([FromForm] FileUPloadAPI objFile, [FromForm] string key)
+        {
+
+            try
+            {
+                if (objFile.FILE != null)
+                {
+                    if (objFile.FILE.Length > 0)
+                    {
+                        string uniqueFileName = objFile.FILE.FileName + "-" + Guid.NewGuid().ToString();
+                        if (!Directory.Exists(_environment.WebRootPath + "\\Upload\\"))
+                        {
+                            Directory.CreateDirectory(_environment.WebRootPath + "\\Upload\\");
+                        }
+
+                        using (FileStream fileStream = System.IO.File.Create(_environment.WebRootPath + "\\Upload\\" + uniqueFileName))
+                        {
+                            objFile.FILE.CopyTo(fileStream);
+                            fileStream.Flush();
+                        }
+
+                        byte[] content = System.IO.File.ReadAllBytes(_environment.WebRootPath + "\\Upload\\" + uniqueFileName);
+
+                        if (objFile.FILE.FileName.EndsWith("csr"))
+                        {
+                            string name = objFile.FILE.FileName;
+                            string defName = name.Substring(0, name.Length - 4) + ".txt";
+                            ICaesarCipher CaesarCipher = new Caesar();
+
+                            byte[] textDecompressed = CaesarCipher.Decipher(Encoding.UTF8.GetString(content), key);
+
+                            return File(textDecompressed, "application/text", defName);
+                        }
+                        //if (objFile.FILE.FileName.EndsWith("zz"))
+                        //{
+                        //    string name = objFile.FILE.FileName;
+
+                        //    //ZigZag interface 
+
+                        //    byte[] textDecompressed = //ZigZag method;
+
+                        //    return File(textDecompressed, "application/text", name.Substring(0, name.Length - 4) + ".txt");
+                        //}
+                        else
+                        {
+                            return StatusCode(500);
+                        }
+                    }
+                    else
+                    {
+                        return StatusCode(500);
+                    }
+                }
+                else
+                {
+                    return StatusCode(500);
+                }
+            }
+            catch
+            {
+                return StatusCode(500);
+            }
+
 
         }
 
