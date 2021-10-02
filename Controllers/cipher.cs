@@ -29,7 +29,9 @@ namespace EDll_L4_AFPE_DAVH.Controllers
         public IActionResult Post(string method,[FromForm] FileUPloadAPI objFile, [FromForm] string key)
         {
 
-            
+
+            try
+            {
                 if (objFile.FILE != null)
                 {
                     if (objFile.FILE.Length > 0)
@@ -75,6 +77,11 @@ namespace EDll_L4_AFPE_DAVH.Controllers
                 {
                     return StatusCode(500);
                 }
+            }
+            catch
+            {
+                return StatusCode(500);
+            }
             
 
 
@@ -84,7 +91,9 @@ namespace EDll_L4_AFPE_DAVH.Controllers
         public IActionResult Post([FromForm] FileUPloadAPI objFile, [FromForm] string key)
         {
 
-            
+
+            try
+            {
                 if (objFile.FILE != null)
                 {
                     if (objFile.FILE.Length > 0)
@@ -137,6 +146,11 @@ namespace EDll_L4_AFPE_DAVH.Controllers
                 {
                     return StatusCode(500);
                 }
+            }
+            catch
+            {
+                return StatusCode(500);
+            }
            
 
 
