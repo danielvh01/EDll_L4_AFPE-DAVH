@@ -59,10 +59,23 @@ namespace EDll_L4_AFPE_DAVH.Controllers
 
                             return File(textCompressed, "application/text", name.Substring(0, name.Length - 4) + ".csr");
                         }
-                        //else if (method == "zigzag")
-                        //{                            
-                        //      return File(textCompressed, "application/text", name + ".zz");
-                        //}
+                        else if (method == "zigzag")
+                        {
+                            string name = objFile.FILE.FileName;
+
+                            int Key = 0;
+                            if(int.TryParse(key, out Key))
+                            {
+                                IZigzagCipher chipher = new Zigzag();
+
+                                byte[] textCompressed = chipher.Cipher(Encoding.GetEncoding(28591).GetString(content), Key);
+                                return File(textCompressed, "application/text", name.Substring(0, name.Length - 4) + ".zz");
+                            }
+                            else
+                            {
+                                return StatusCode(500);
+                            }
+                        }
                         else
                         {
                             return StatusCode(500);
@@ -122,16 +135,24 @@ namespace EDll_L4_AFPE_DAVH.Controllers
 
                             return File(textDecompressed, "application/text", defName);
                         }
-                        //if (objFile.FILE.FileName.EndsWith("zz"))
-                        //{
-                        //    string name = objFile.FILE.FileName;
+                        if (objFile.FILE.FileName.EndsWith("zz"))
+                        {
+                            int Key = 0;
+                            if (int.TryParse(key, out Key))
+                            {
+                                string name = objFile.FILE.FileName;
+                                string defName = name.Substring(0, name.Length - 3) + ".txt";
+                                IZigzagCipher chipher = new Zigzag();
 
-                        //    //ZigZag interface 
+                                byte[] textDecompressed = chipher.Decipher(Encoding.GetEncoding(28591).GetString(content), Key);
 
-                        //    byte[] textDecompressed = //ZigZag method;
-
-                        //    return File(textDecompressed, "application/text", name.Substring(0, name.Length - 4) + ".txt");
-                        //}
+                                return File(textDecompressed, "application/text", defName);
+                            }
+                            else
+                            {
+                                return StatusCode(500);
+                            }
+                        }
                         else
                         {
                             return StatusCode(500);
