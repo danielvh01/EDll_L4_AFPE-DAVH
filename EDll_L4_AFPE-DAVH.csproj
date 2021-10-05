@@ -7,9 +7,13 @@
 
   <ItemGroup>
     <Compile Remove="DataStructures\**" />
+    <Compile Remove="Strings_Cihpher\**" />
     <Content Remove="DataStructures\**" />
+    <Content Remove="Strings_Cihpher\**" />
     <EmbeddedResource Remove="DataStructures\**" />
+    <EmbeddedResource Remove="Strings_Cihpher\**" />
     <None Remove="DataStructures\**" />
+    <None Remove="Strings_Cihpher\**" />
   </ItemGroup>
 
   <ItemGroup>
