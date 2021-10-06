@@ -7,7 +7,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\DataStructures\DataStructures\DataStructures.csproj" />
-    <ProjectReference Include="..\Laboratorio 4\DataStructures\DataStructures\DataStructures.csproj" />
   </ItemGroup>
 
 </Project>
