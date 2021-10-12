@@ -55,7 +55,7 @@ namespace EDll_L4_AFPE_DAVH.Controllers
                             string name = objFile.FILE.FileName;
                             ICaesarCipher CaesarCipher = new Caesar();
 
-                            byte[] textCompressed = CaesarCipher.Cipher(Encoding.GetEncoding(28591).GetString(content), key);
+                            byte[] textCompressed = CaesarCipher.Cipher(content, key);
 
                             return File(textCompressed, "application/text", name.Substring(0, name.Length - 4) + ".csr");
                         }
@@ -68,7 +68,7 @@ namespace EDll_L4_AFPE_DAVH.Controllers
                             {
                                 IZigzagCipher chipher = new Zigzag();
 
-                                byte[] textCompressed = chipher.Cipher(Encoding.GetEncoding(28591).GetString(content), Key);
+                                byte[] textCompressed = chipher.Cipher(content, Key);
                                 return File(textCompressed, "application/text", name.Substring(0, name.Length - 4) + ".zz");
                             }
                             else
@@ -131,7 +131,7 @@ namespace EDll_L4_AFPE_DAVH.Controllers
                             string defName = name.Substring(0, name.Length - 4) + ".txt";
                             ICaesarCipher CaesarCipher = new Caesar();
 
-                            byte[] textDecompressed = CaesarCipher.Decipher(Encoding.GetEncoding(28591).GetString(content), key);
+                            byte[] textDecompressed = CaesarCipher.Decipher(content, key);
 
                             return File(textDecompressed, "application/text", defName);
                         }
@@ -144,7 +144,7 @@ namespace EDll_L4_AFPE_DAVH.Controllers
                                 string defName = name.Substring(0, name.Length - 3) + ".txt";
                                 IZigzagCipher chipher = new Zigzag();
 
-                                byte[] textDecompressed = chipher.Decipher(Encoding.GetEncoding(28591).GetString(content), Key);
+                                byte[] textDecompressed = chipher.Decipher(content, Key);
 
                                 return File(textDecompressed, "application/text", defName);
                             }
