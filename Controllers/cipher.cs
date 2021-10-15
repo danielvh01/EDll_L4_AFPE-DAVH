@@ -104,7 +104,31 @@ namespace EDll_L4_AFPE_DAVH.Controllers
 
         public IActionResult SDESCipher(string method, [FromForm] FileUPloadAPI objFile, [FromForm] string key)
         {
+            int secretKey = int.Parse(key);
+            if (secretKey < 1024)
+            {
+                if (objFile.FILE != null)
+                {
+                    if (objFile.FILE.Length > 0)
+                    {
+                        string uniqueFileName = objFile.FILE.FileName + "-" + Guid.NewGuid().ToString();
+                        if (!Directory.Exists(_environment.WebRootPath + "\\Upload\\"))
+                        {
+                            Directory.CreateDirectory(_environment.WebRootPath + "\\Upload\\");
+                        }
 
+                        using (FileStream fileStream = System.IO.File.Create(_environment.WebRootPath + "\\Upload\\" + uniqueFileName))
+                        {
+                            objFile.FILE.CopyTo(fileStream);
+                            fileStream.Flush();
+                        }
+
+                        byte[] content = System.IO.File.ReadAllBytes(_environment.WebRootPath + "\\Upload\\" + uniqueFileName);
+
+
+                    }
+                }
+            }
         }
 
         [HttpPost("decipher")]
