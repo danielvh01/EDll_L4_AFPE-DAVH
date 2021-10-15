@@ -173,16 +173,19 @@ namespace EDll_L4_AFPE_DAVH.Controllers
                         {
                             objFile.FILE.CopyTo(fileStream);
                             fileStream.Flush();
-                        }
+                        }                        
 
+                            
                         byte[] content = System.IO.File.ReadAllBytes(_environment.WebRootPath + "\\Upload\\" + uniqueFileName);
 
                         ISDES cipher = new SDES();
 
-                        byte[] textCiphered = cipher.Cipher(content, secretKey);
+                        byte[] textCiphered = cipher.Decipher(content, secretKey);
                         string originalFileName = objFile.FILE.FileName;
-                        return File(textCiphered, "application/text", Singleton.Instance.fileNames[originalFileName.Remove(originalFileName.Length-5)]);
-
+                        string nameTofile = Singleton.Instance.fileNames[originalFileName.Remove(originalFileName.Length - 5)];
+                        Singleton.Instance.fileNames.Remove(originalFileName.Remove(originalFileName.Length - 5));
+                        return File(textCiphered, "application/text", nameTofile);
+                            
                     }
                     else
                     {
