@@ -9,7 +9,8 @@ namespace DataStructures
     public class SDES : ISDES
     {
         public SDES()
-        { 
+        {
+            PermutationConfigurator();
         }
         string[] P10out;
         string[] P8out;
@@ -172,14 +173,11 @@ namespace DataStructures
         string[] genK1K2(int key)
         {
             string binary = Convert.ToString(key, 2);
-            if (binary.Length < 10)
+            int cont = binary.Length;
+            while (cont < 10)
             {
-                int cont = binary.Length;
-                while (cont < 10)
-                {
-                    binary = "0" + binary;
-                    cont++;
-                }
+                binary = "0" + binary;
+                cont++;
             }
             string LS1 = LeftShift(P10(binary));
             string k1 = P8(LS1);
@@ -228,14 +226,13 @@ namespace DataStructures
             string cl = firstXor[5].ToString() + firstXor[6].ToString();
             string Sl = SBOXo[Convert.ToInt32(fl, 2), Convert.ToInt32(cl, 2)];
 
-            string iIP = IP_1((xor(P4(S0 + Sl), SW_4) + switched.Substring(4)));
+            string iIP = IP_1(xor(P4(S0 + Sl), SW_4) + switched.Substring(4));
             return Convert.ToInt32(iIP, 2);
         }
         #endregion
 
         public byte[] Cipher(byte [] message, int key)
-        {
-            PermutationConfigurator();
+        {            
             byte[] result = new byte[message.Length];
             string[] k1k2 = genK1K2(key);
             for (int index = 0; index < message.Length; index++)
