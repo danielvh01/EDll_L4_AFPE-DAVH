@@ -4,7 +4,7 @@ using System.Text;
 
 namespace DataStructures
 {
-    interface ISDES : ICipher<int>
+    public interface ISDES : ICipher<int>
     {
         byte[] Cipher(byte[] message, int key);
         byte[] Decipher(byte[] message, int key);

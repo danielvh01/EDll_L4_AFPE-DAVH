@@ -9,12 +9,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
+
 namespace EDll_L4_AFPE_DAVH.Controllers
 {
     [Route("api/")]
     [ApiController]
     public class cipher : Controller
     {
+        
         public static IWebHostEnvironment _environment;
         public cipher(IWebHostEnvironment environment)
         {
@@ -102,8 +104,58 @@ namespace EDll_L4_AFPE_DAVH.Controllers
 
         [HttpPost("sdes/cipher/{name}")]
 
-        public IActionResult SDESCipher(string method, [FromForm] FileUPloadAPI objFile, [FromForm] string key)
+        public IActionResult SDESCipher(string name, [FromForm] FileUPloadAPI objFile, [FromForm] string key)
         {
+            
+                int secretKey = int.Parse(key);
+                if (secretKey < 1024)
+                {
+                    if (objFile.FILE != null)
+                    {
+                        if (objFile.FILE.Length > 0)
+                        {
+                            string uniqueFileName = objFile.FILE.FileName + "-" + Guid.NewGuid().ToString();
+                            if (!Directory.Exists(_environment.WebRootPath + "\\Upload\\"))
+                            {
+                                Directory.CreateDirectory(_environment.WebRootPath + "\\Upload\\");
+                            }
+
+                            using (FileStream fileStream = System.IO.File.Create(_environment.WebRootPath + "\\Upload\\" + uniqueFileName))
+                            {
+                                objFile.FILE.CopyTo(fileStream);
+                                fileStream.Flush();
+                            }
+
+                            byte[] content = System.IO.File.ReadAllBytes(_environment.WebRootPath + "\\Upload\\" + uniqueFileName);
+
+                            ISDES cipher = new SDES();
+                            byte[] textCiphered = cipher.Cipher(content, secretKey);
+                            Singleton.Instance.fileNames.Add(name, objFile.FILE.FileName);
+                            return File(textCiphered, "application/text", name + ".sdes");
+
+                        }
+                        else
+                        {
+                            return StatusCode(500);
+                        }
+                    }
+                    else
+                    {
+                        return StatusCode(500);
+                    }
+                }
+                else
+                {
+                    return StatusCode(500);
+                }
+            
+        }
+
+        [HttpPost("sdes/decipher/")]
+
+        public IActionResult SDESDeCipher([FromForm] FileUPloadAPI objFile, [FromForm] string key)
+        {
+
             int secretKey = int.Parse(key);
             if (secretKey < 1024)
             {
@@ -125,10 +177,28 @@ namespace EDll_L4_AFPE_DAVH.Controllers
 
                         byte[] content = System.IO.File.ReadAllBytes(_environment.WebRootPath + "\\Upload\\" + uniqueFileName);
 
-                        
+                        ISDES cipher = new SDES();
+
+                        byte[] textCiphered = cipher.Cipher(content, secretKey);
+                        string originalFileName = objFile.FILE.FileName;
+                        return File(textCiphered, "application/text", Singleton.Instance.fileNames[originalFileName.Remove(originalFileName.Length-5)]);
+
+                    }
+                    else
+                    {
+                        return StatusCode(500);
                     }
                 }
+                else
+                {
+                    return StatusCode(500);
+                }
             }
+            else
+            {
+                return StatusCode(500);
+            }
+
         }
 
         [HttpPost("decipher")]

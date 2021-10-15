@@ -6,8 +6,11 @@ using System.Text;
 
 namespace DataStructures
 {
-    public class SDES
+    public class SDES : ISDES
     {
+        public SDES()
+        { 
+        }
         string[] P10out;
         string[] P8out;
         string[] P4out;
@@ -29,9 +32,13 @@ namespace DataStructures
               { "11","00","01","00"},
               { "10","01","00","11"} };
 
+
+        #region methods used by cipher and decipher methods
+
         void PermutationConfigurator()
         {
-            string path = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"Configuration\Permutations.txt");
+            string filename = "Permutations.txt";
+            string path = Path.Combine(Environment.CurrentDirectory, @"Configuration\", filename);
             string[] files = File.ReadAllLines(path);
             P10out = files[0].Split(",");
             P8out = files[1].Split(",");
@@ -40,7 +47,6 @@ namespace DataStructures
             IPout = files[4].Split(",");
             IP_1out = files[5].Split(",");
         }
-        #region methods used by cipher and decipher methods
         string P10(string key)
         {            
             string P10array = "";
@@ -54,7 +60,7 @@ namespace DataStructures
         string LeftShift(string p10array)
         {
             string LeftShiftarray = "";
-            for (int i = 0; i < 10; i++)
+            for (int i = 0; i < 9; i++)
             {                
                 LeftShiftarray += p10array[i + 1];
             }
@@ -98,7 +104,7 @@ namespace DataStructures
         string IP_1(string array)
         {            
             string IP_1 = "";
-            for (int i = 0; i < 10; i++)
+            for (int i = 0; i < 8; i++)
             {
                 IP_1 += array[int.Parse(IP_1out[i])-1];
             }
@@ -108,7 +114,7 @@ namespace DataStructures
         string EP(string array)
         {            
             string EP = "";
-            for (int i = 0; i < 10; i++)
+            for (int i = 0; i < 8; i++)
             {
                 EP += array[int.Parse(EPout[i])-1];
             }
@@ -229,6 +235,7 @@ namespace DataStructures
 
         public byte[] Cipher(byte [] message, int key)
         {
+            PermutationConfigurator();
             byte[] result = new byte[message.Length];
             string[] k1k2 = genK1K2(key);
             for (int index = 0; index < message.Length; index++)
@@ -236,6 +243,18 @@ namespace DataStructures
                 string Ipermutation = IP(Convert.ToString(message[index],2).PadLeft(8,'0'));
                 result[index] = (byte)fk2(fk1(Ipermutation, k1k2[0]), k1k2[1]);
             }                       
+            return result;
+        }
+
+        public byte[] Decipher(byte[] message, int key)
+        {
+            byte[] result = new byte[message.Length];
+            string[] k1k2 = genK1K2(key);
+            for (int index = 0; index < message.Length; index++)
+            {
+                string Ipermutation = IP(Convert.ToString(message[index], 2).PadLeft(8, '0'));
+                result[index] = (byte)fk2(fk1(Ipermutation, k1k2[1]), k1k2[0]);
+            }
             return result;
         }
 
