@@ -20,5 +20,9 @@
     <ProjectReference Include="DataStructures\DataStructures\DataStructures.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Configuration\" />
+  </ItemGroup>
+
 
 </Project>

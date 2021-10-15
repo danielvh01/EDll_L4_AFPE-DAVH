@@ -4,10 +4,10 @@ using System.Text;
 
 namespace DataStructures
 {
-    public interface ICaesarCipher
+    public interface ICaesarCipher : ICipher<string>
     {
-        byte[] Cipher(string text, string Key);
-        byte[] Decipher(string text, string key);
+        byte[] Cipher(byte[] text, string Key);
+        byte[] Decipher(byte[] text, string key);
 
 
     }

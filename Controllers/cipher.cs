@@ -9,12 +9,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
+
 namespace EDll_L4_AFPE_DAVH.Controllers
 {
     [Route("api/")]
     [ApiController]
     public class cipher : Controller
     {
+        
         public static IWebHostEnvironment _environment;
         public cipher(IWebHostEnvironment environment)
         {
@@ -55,7 +57,7 @@ namespace EDll_L4_AFPE_DAVH.Controllers
                             string name = objFile.FILE.FileName;
                             ICaesarCipher CaesarCipher = new Caesar();
 
-                            byte[] textCompressed = CaesarCipher.Cipher(Encoding.GetEncoding(28591).GetString(content), key);
+                            byte[] textCompressed = CaesarCipher.Cipher(content, key);
 
                             return File(textCompressed, "application/text", name.Substring(0, name.Length - 4) + ".csr");
                         }
@@ -68,7 +70,7 @@ namespace EDll_L4_AFPE_DAVH.Controllers
                             {
                                 IZigzagCipher chipher = new Zigzag();
 
-                                byte[] textCompressed = chipher.Cipher(Encoding.GetEncoding(28591).GetString(content), Key);
+                                byte[] textCompressed = chipher.Cipher(content, Key);
                                 return File(textCompressed, "application/text", name.Substring(0, name.Length - 4) + ".zz");
                             }
                             else
@@ -97,6 +99,105 @@ namespace EDll_L4_AFPE_DAVH.Controllers
             }
             
 
+
+        }
+
+        [HttpPost("sdes/cipher/{name}")]
+
+        public IActionResult SDESCipher(string name, [FromForm] FileUPloadAPI objFile, [FromForm] string key)
+        {
+            
+                int secretKey = int.Parse(key);
+                if (secretKey < 1024)
+                {
+                    if (objFile.FILE != null)
+                    {
+                        if (objFile.FILE.Length > 0)
+                        {
+                            string uniqueFileName = objFile.FILE.FileName + "-" + Guid.NewGuid().ToString();
+                            if (!Directory.Exists(_environment.WebRootPath + "\\Upload\\"))
+                            {
+                                Directory.CreateDirectory(_environment.WebRootPath + "\\Upload\\");
+                            }
+
+                            using (FileStream fileStream = System.IO.File.Create(_environment.WebRootPath + "\\Upload\\" + uniqueFileName))
+                            {
+                                objFile.FILE.CopyTo(fileStream);
+                                fileStream.Flush();
+                            }
+
+                            byte[] content = System.IO.File.ReadAllBytes(_environment.WebRootPath + "\\Upload\\" + uniqueFileName);
+
+                            ISDES cipher = new SDES();
+                            byte[] textCiphered = cipher.Cipher(content, secretKey);
+                            Singleton.Instance.fileNames.Add(name, objFile.FILE.FileName);
+                            return File(textCiphered, "application/text", name + ".sdes");
+
+                        }
+                        else
+                        {
+                            return StatusCode(500);
+                        }
+                    }
+                    else
+                    {
+                        return StatusCode(500);
+                    }
+                }
+                else
+                {
+                    return StatusCode(500);
+                }
+            
+        }
+
+        [HttpPost("sdes/decipher/")]
+
+        public IActionResult SDESDeCipher([FromForm] FileUPloadAPI objFile, [FromForm] string key)
+        {
+
+            int secretKey = int.Parse(key);
+            if (secretKey < 1024)
+            {
+                if (objFile.FILE != null)
+                {
+                    if (objFile.FILE.Length > 0)
+                    {
+                        string uniqueFileName = objFile.FILE.FileName + "-" + Guid.NewGuid().ToString();
+                        if (!Directory.Exists(_environment.WebRootPath + "\\Upload\\"))
+                        {
+                            Directory.CreateDirectory(_environment.WebRootPath + "\\Upload\\");
+                        }
+
+                        using (FileStream fileStream = System.IO.File.Create(_environment.WebRootPath + "\\Upload\\" + uniqueFileName))
+                        {
+                            objFile.FILE.CopyTo(fileStream);
+                            fileStream.Flush();
+                        }
+
+                        byte[] content = System.IO.File.ReadAllBytes(_environment.WebRootPath + "\\Upload\\" + uniqueFileName);
+
+                        ISDES cipher = new SDES();
+
+                        byte[] textCiphered = cipher.Cipher(content, secretKey);
+                        string originalFileName = objFile.FILE.FileName;
+                        return File(textCiphered, "application/text", Singleton.Instance.fileNames[originalFileName.Remove(originalFileName.Length-5)]);
+
+                    }
+                    else
+                    {
+                        return StatusCode(500);
+                    }
+                }
+                else
+                {
+                    return StatusCode(500);
+                }
+            }
+            else
+            {
+                return StatusCode(500);
+            }
 
         }
 
@@ -131,7 +232,7 @@ namespace EDll_L4_AFPE_DAVH.Controllers
                             string defName = name.Substring(0, name.Length - 4) + ".txt";
                             ICaesarCipher CaesarCipher = new Caesar();
 
-                            byte[] textDecompressed = CaesarCipher.Decipher(Encoding.GetEncoding(28591).GetString(content), key);
+                            byte[] textDecompressed = CaesarCipher.Decipher(content, key);
 
                             return File(textDecompressed, "application/text", defName);
                         }
@@ -144,7 +245,7 @@ namespace EDll_L4_AFPE_DAVH.Controllers
                                 string defName = name.Substring(0, name.Length - 3) + ".txt";
                                 IZigzagCipher chipher = new Zigzag();
 
-                                byte[] textDecompressed = chipher.Decipher(Encoding.GetEncoding(28591).GetString(content), Key);
+                                byte[] textDecompressed = chipher.Decipher(content, Key);
 
                                 return File(textDecompressed, "application/text", defName);
                             }
