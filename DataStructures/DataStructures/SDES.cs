@@ -1,19 +1,52 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Reflection;
 using System.Text;
 
 namespace DataStructures
 {
-    class SDES
+    public class SDES
     {
-        
-        string P10(string key)
+        string[] P10out;
+        string[] P8out;
+        string[] P4out;
+        string[] EPout;
+        string[] IPout;
+        string[] IP_1out;
+
+        string[,] SBOXo = new string [4,4]
+
+            { { "01","00","11","10"},
+              { "11","10","01","00"},
+              { "00","10","01","11"},
+              { "11","01","11","10"} };
+
+        string[,] SBOX1 = new string[4, 4]
+
+            { { "00","01","10","11"},
+              { "10","00","01","11"},
+              { "11","00","01","00"},
+              { "10","01","00","11"} };
+
+        void PermutationConfigurator()
         {
-            int[] P10out = { 3, 7, 5, 1, 2, 9, 0, 4, 8, 6 };
+            string path = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"Configuration\Permutations.txt");
+            string[] files = File.ReadAllLines(path);
+            P10out = files[0].Split(",");
+            P8out = files[1].Split(",");
+            P4out = files[2].Split(",");
+            EPout = files[3].Split(",");
+            IPout = files[4].Split(",");
+            IP_1out = files[5].Split(",");
+        }
+        #region methods used by cipher and decipher methods
+        string P10(string key)
+        {            
             string P10array = "";
             for (int i = 0; i < 10; i++)
             {
-                P10array+= key[P10out[i]];
+                P10array+= key[int.Parse(P10out[i])-1];
             }
             return P10array;
         }
@@ -30,12 +63,11 @@ namespace DataStructures
         }
 
         string P8(string LeftShiftarray)
-        {
-            int[] P8out = {9,4,2,8,3,0,6,1 };
+        {            
             string P8array = "";
             for (int i = 0; i < 8; i++)
             {
-                P8array += LeftShiftarray[P8out[i]];
+                P8array += LeftShiftarray[int.Parse(P8out[i])-1];
             }
             return P8array;
         }
@@ -54,45 +86,41 @@ namespace DataStructures
 
 
         string IP(string array)
-        {
-            int[] IPout = { 3, 0, 6, 1, 7, 2, 4, 5 };
+        {            
             string IP = "";
             for (int i = 0; i < 8; i++)
             {
-                IP += array[IPout[i]];
+                IP += array[int.Parse(IPout[i])-1];
             }
             return IP;
         }
 
         string IP_1(string array)
-        {
-            int[] IP_1out = { 1, 3, 5, 0, 6, 7, 2, 4 };
+        {            
             string IP_1 = "";
             for (int i = 0; i < 10; i++)
             {
-                IP_1 += array[IP_1out[i]];
+                IP_1 += array[int.Parse(IP_1out[i])-1];
             }
             return IP_1;
         }
 
         string EP(string array)
-        {
-            int[] EPout = { 2, 1, 3, 4, 3, 2, 4, 1 };
+        {            
             string EP = "";
             for (int i = 0; i < 10; i++)
             {
-                EP += array[EPout[i]];
+                EP += array[int.Parse(EPout[i])-1];
             }
             return EP;
         }
 
         string P4(string array)
-        {
-            int[] P4out = { 3,1,4,2 };
+        {            
             string P4 = "";
             for (int i = 0; i < 4; i++)
             {
-                P4 += array[P4out[i]];
+                P4 += array[int.Parse(P4out[i])-1];
             }
             return P4;
         }
@@ -111,6 +139,12 @@ namespace DataStructures
                 }
             }
             return result;
+        }
+        #endregion
+
+        public byte[] Cipher(byte [] message, int key)
+        {
+            
         }
 
     }

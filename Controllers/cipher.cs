@@ -100,6 +100,13 @@ namespace EDll_L4_AFPE_DAVH.Controllers
 
         }
 
+        [HttpPost("sdes/cipher/{name}")]
+
+        public IActionResult SDESCipher(string method, [FromForm] FileUPloadAPI objFile, [FromForm] string key)
+        {
+
+        }
+
         [HttpPost("decipher")]
         public IActionResult Post([FromForm] FileUPloadAPI objFile, [FromForm] string key)
         {
