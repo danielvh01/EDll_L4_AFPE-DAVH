@@ -1,5 +1,6 @@
 ﻿using System;
 using DataStructures;
+using System.IO;
 using System.Text;
 
 namespace Strings_Cihpher
@@ -94,7 +95,7 @@ namespace Strings_Cihpher
                         }
                         break;
                     case "3":
-                        IZigzagCipher chipers = new Zigzag();
+                        ISDES chipers = new SDES(Environment.CurrentDirectory + @"\..\..\..\..\Configuration\");
                         Console.WriteLine("Escriba el texto que desea cifrar:");
                         string contents = Console.ReadLine();
                         Console.WriteLine("Escriba la clave para el cifrado");

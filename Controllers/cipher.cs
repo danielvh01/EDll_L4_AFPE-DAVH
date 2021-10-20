@@ -128,7 +128,7 @@ namespace EDll_L4_AFPE_DAVH.Controllers
 
                             byte[] content = System.IO.File.ReadAllBytes(_environment.WebRootPath + "\\Upload\\" + uniqueFileName);
 
-                            ISDES cipher = new SDES();
+                            ISDES cipher = new SDES(Path.GetDirectoryName(@"Configuration\"));
                             byte[] textCiphered = cipher.Cipher(content, secretKey);
                             Singleton.Instance.fileNames.Add(name, objFile.FILE.FileName);
                             return File(textCiphered, "application/text", name + ".sdes");
@@ -178,7 +178,7 @@ namespace EDll_L4_AFPE_DAVH.Controllers
                             
                         byte[] content = System.IO.File.ReadAllBytes(_environment.WebRootPath + "\\Upload\\" + uniqueFileName);
 
-                        ISDES cipher = new SDES();
+                        ISDES cipher = new SDES(Path.GetDirectoryName(@"Configuration\"));
 
                         byte[] textCiphered = cipher.Decipher(content, secretKey);
                         string originalFileName = objFile.FILE.FileName;

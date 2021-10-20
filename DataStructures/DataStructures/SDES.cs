@@ -8,8 +8,10 @@ namespace DataStructures
 {
     public class SDES : ISDES
     {
-        public SDES()
+        string path;
+        public SDES(string p)
         {
+            path = p;
             PermutationConfigurator();
         }
         string[] P10out;
@@ -39,8 +41,7 @@ namespace DataStructures
         void PermutationConfigurator()
         {
             string filename = "Permutations.txt";
-            string path = Path.Combine(Environment.CurrentDirectory, @"Configuration\", filename);
-            string[] files = File.ReadAllLines(path);
+            string[] files = File.ReadAllLines(path + "\\" + filename);
             P10out = files[0].Split(",");
             P8out = files[1].Split(",");
             P4out = files[2].Split(",");
