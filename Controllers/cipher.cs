@@ -107,37 +107,33 @@ namespace EDll_L4_AFPE_DAVH.Controllers
         public IActionResult SDESCipher(string name, [FromForm] FileUPloadAPI objFile, [FromForm] string key)
         {
             
-                int secretKey = int.Parse(key);
-                if (secretKey < 1024)
+            int secretKey = int.Parse(key);
+            if (secretKey < 1024)
+            {
+                if (objFile.FILE != null)
                 {
-                    if (objFile.FILE != null)
+                    if (objFile.FILE.Length > 0)
                     {
-                        if (objFile.FILE.Length > 0)
+                        string uniqueFileName = objFile.FILE.FileName + "-" + Guid.NewGuid().ToString();
+                        if (!Directory.Exists(_environment.WebRootPath + "\\Upload\\"))
                         {
-                            string uniqueFileName = objFile.FILE.FileName + "-" + Guid.NewGuid().ToString();
-                            if (!Directory.Exists(_environment.WebRootPath + "\\Upload\\"))
-                            {
-                                Directory.CreateDirectory(_environment.WebRootPath + "\\Upload\\");
-                            }
-
-                            using (FileStream fileStream = System.IO.File.Create(_environment.WebRootPath + "\\Upload\\" + uniqueFileName))
-                            {
-                                objFile.FILE.CopyTo(fileStream);
-                                fileStream.Flush();
-                            }
-
-                            byte[] content = System.IO.File.ReadAllBytes(_environment.WebRootPath + "\\Upload\\" + uniqueFileName);
-
-                            ISDES cipher = new SDES(Path.GetDirectoryName(@"Configuration\"));
-                            byte[] textCiphered = cipher.Cipher(content, secretKey);
-                            Singleton.Instance.fileNames.Add(name, objFile.FILE.FileName);
-                            return File(textCiphered, "application/text", name + ".sdes");
-
+                            Directory.CreateDirectory(_environment.WebRootPath + "\\Upload\\");
                         }
-                        else
+
+                        using (FileStream fileStream = System.IO.File.Create(_environment.WebRootPath + "\\Upload\\" + uniqueFileName))
                         {
-                            return StatusCode(500);
+                            objFile.FILE.CopyTo(fileStream);
+                            fileStream.Flush();
                         }
+
+                        byte[] content = System.IO.File.ReadAllBytes(_environment.WebRootPath + "\\Upload\\" + uniqueFileName);
+
+                        ISDES cipher = new SDES(Path.GetDirectoryName(@"Configuration\"));
+                        byte[] textCiphered = cipher.Cipher(content, secretKey);
+                        string names = System.IO.File.ReadAllText(Environment.CurrentDirectory + "\\Names.txt");
+                        System.IO.File.WriteAllText(Environment.CurrentDirectory + "\\Names.txt",names + objFile.FILE.FileName + "|" + name + ".sdes\n");
+                        return File(textCiphered, "application/text", name + ".sdes");
+
                     }
                     else
                     {
@@ -148,6 +144,11 @@ namespace EDll_L4_AFPE_DAVH.Controllers
                 {
                     return StatusCode(500);
                 }
+            }
+            else
+            {
+                return StatusCode(500);
+            }
             
         }
 
@@ -182,8 +183,25 @@ namespace EDll_L4_AFPE_DAVH.Controllers
 
                         byte[] textCiphered = cipher.Decipher(content, secretKey);
                         string originalFileName = objFile.FILE.FileName;
-                        string nameTofile = Singleton.Instance.fileNames[originalFileName.Remove(originalFileName.Length - 5)];
-                        Singleton.Instance.fileNames.Remove(originalFileName.Remove(originalFileName.Length - 5));
+                        string names = System.IO.File.ReadAllText(Environment.CurrentDirectory + "\\Names.txt");
+                        string[] files = names.Split("\n");
+                        string nameTofile = "";
+                        string newContent = "";
+                        bool encontrado = false;
+                        for(int i = 0; i < files.Length - 1; i++)
+                        {
+                            string[] filenames = files[i].Split("|");
+                            if(filenames[1] == objFile.FILE.FileName && !encontrado)
+                            {
+                                nameTofile = filenames[0];
+                                encontrado = true;
+                            }
+                            else
+                            {
+                                newContent += files[i] + "\n";
+                            }
+                        }
+                        System.IO.File.WriteAllText(Environment.CurrentDirectory + "\\Names.txt", newContent);
                         return File(textCiphered, "application/text", nameTofile);
                             
                     }
