@@ -6,19 +6,19 @@ namespace DataStructures
 {
     public class Caesar : ICaesarCipher
     {
-        private Dictionary<char,int> dictionary;
+        private Dictionary<char, int> dictionary;
         private Dictionary<int, char> dictionary2;
 
         public Caesar()
         {
-            dictionary = new Dictionary<char,int>();
+            dictionary = new Dictionary<char, int>();
             dictionary2 = new Dictionary<int, char>();
         }
 
-        public byte[] Cipher(string text,string key)
-        {            
+        public byte[] Cipher(byte[] text, string key)
+        {
             byte[] result = new byte[text.Length];
-            if (text != "" || text != null || text.Length != 0)
+            if (text != null || text.Length != 0)
             {
                 //Fills the base dictionary
                 for (int i = 0; i < 256; i++)
@@ -42,7 +42,7 @@ namespace DataStructures
                 //The text that is going to be ciphered is taken from the one that match between the value of the second dictionary and the key of the base dictionary.
                 for (int i = 0; i < text.Length; i++)
                 {
-                    result[i] = (byte)dictionary2[(char)dictionary[text[i]]];
+                    result[i] = (byte)dictionary2[(char)dictionary[(char)text[i]]];
                 }
                 return result;
             }
@@ -55,10 +55,10 @@ namespace DataStructures
         //Same process of the cipher but now in reverse. The base dictionary is the one that contains the key and then, The text that 
         //is going to be deciphered is taken from the one that match between the value of the base dictionary(now with the key sent by the user) 
         //and the key of the second dictionary (which is actually the base dictionary).
-        public byte[] Decipher(string text, string key)
+        public byte[] Decipher(byte[] text, string key)
         {
             byte[] result = new byte[text.Length];
-            if (text != "" || text != null || text.Length != 0)
+            if (text != null || text.Length != 0)
             {               
                 for (int i = 0; i < key.Length; i++)
                 {
@@ -81,7 +81,7 @@ namespace DataStructures
 
                 for (int i = 0; i < text.Length; i++)
                 {
-                    result[i] = (byte)dictionary[(char)dictionary2[text[i]]];
+                    result[i] = (byte)dictionary[(char)dictionary2[(int)text[i]]];
                 }
                 return result;
 
