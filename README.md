@@ -11,3 +11,21 @@ Decipher route: "api/decipher"
 
 Decipher Post method automatically detects what type of compression was used for the ciphered text by reading the file extension.
 
+
+Laboratory #5 branch: L5
+
+FOR SDES
+
+SDES cipher route:
+
+/api/sdes/cipher/{name}
+
+SDES CIPHER ROUTE:
+
+/api/sdes/decipher/
+
+
+Laboratory #6 branch: L6
+
+
+
