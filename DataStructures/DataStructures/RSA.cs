@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace DataStructures
 {
@@ -18,12 +17,19 @@ namespace DataStructures
             int N = p * q;
             int phiN = (p - 1)*(q - 1);
             int e = 2;            
-            while (e < N && !Coprime(N,e) && !Coprime(phiN, e))
+            for (int i = 0; i < phiN; i++)
             {
-                e++;
+                if (e < N && Coprime(N, e) == true && Coprime(phiN, e) == true)
+                {
+                    break;
+                }
+                else
+                {
+                    e++;
+                }
             }
             int d = GetD(1,phiN,e);
-            return (e,N,d,N);
+            return (d,N,e,N);
         }
 
         int GetD(int k, int phiN, int e)
@@ -47,21 +53,28 @@ namespace DataStructures
             }
         }
 
-        int MCD(int value1, int value2)
-        {
-            while (value1 != 0 && value2 != 0)
-            {
-                if (value1 > value2)
-                    value1 %= value2;
-                else
-                    value2 %= value1;
-            }
-            return Math.Max(value1, value2);
+        static int __gcd(int a, int b)
+        {            
+            if (a == 0 || b == 0)
+                return 0;
+            
+            if (a == b)
+                return a;
+            
+            if (a > b)
+                return __gcd(a - b, b);
+
+            return __gcd(a, b - a);
         }
 
-        bool Coprime(int value1, int value2)
+
+        bool Coprime(int a, int b)
         {
-            return MCD(value1, value2) == 1;
+
+            if (__gcd(a, b) == 1)
+                return true;
+            else
+                return false;
         }
 
         #endregion
