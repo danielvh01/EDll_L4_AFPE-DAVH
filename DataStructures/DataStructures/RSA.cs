@@ -17,9 +17,8 @@ namespace DataStructures
         {
             int N = p * q;
             int phiN = (p - 1)*(q - 1);
-            int e = 2;
-
-            while (e < N || !Coprime(N,e) && !Coprime(phiN, e))
+            int e = 2;            
+            while (e < N && !Coprime(N,e) && !Coprime(phiN, e))
             {
                 e++;
             }
@@ -28,13 +27,13 @@ namespace DataStructures
         }
 
         int GetD(int k, int phiN, int e)
-        {
+        {            
             int d = 0;            
             int deq = 1;
             //Choose d
             while (deq != 0)
             {
-                deq = k * phiN + 1 % e;
+                deq = (k * phiN + 1) % e;
                 k++;
             }
             d = ((k - 1) * phiN + 1) / e;
@@ -73,9 +72,29 @@ namespace DataStructures
         {
             List<byte> result = new List<byte>();
             foreach (byte c in content) {
-                result.Add((byte)(Math.Pow(c,k1) % k2));
+                result.Add((byte)(ModularPower(c,k1,k2)));
             }
             return result.ToArray();
+        }
+
+        int ModularPower(int x, int y, int p)
+        {
+            int res = 1;
+            x = x % p;                       
+
+            if (x == 0){
+                return 0;            
+            }
+            
+            while (y > 0)
+            {
+                if ((y & 1) != 0){
+                    res = (res * x) % p;
+                }                
+                y = y >> 1;
+                x = (x * x) % p;
+            }
+            return res;
         }
 
         #endregion

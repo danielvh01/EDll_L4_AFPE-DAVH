@@ -20,5 +20,13 @@
     <ProjectReference Include="DataStructures\DataStructures\DataStructures.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="TempFiles\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="SharpZipLib.NETStandard" Version="1.0.7" />
+  </ItemGroup>
+
 
 </Project>
