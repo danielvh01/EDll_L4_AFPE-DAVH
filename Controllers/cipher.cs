@@ -25,6 +25,10 @@ namespace EDll_L4_AFPE_DAVH.Controllers
         {
             public IFormFile FILE { get; set; }            
         }
+        public class FileUPloadAPI2
+        {
+            public IFormFileCollection FILE { get; set; }
+        }
 
         #endregion
 
@@ -309,7 +313,7 @@ namespace EDll_L4_AFPE_DAVH.Controllers
         [HttpGet("rsa/keys/{p}/{q}")]
         public IActionResult RSAKeys(string p, string q)
         {
-            if (IsPrime(int.Parse(p)) && IsPrime(int.Parse(q))){
+            if (IsPrime(int.Parse(p)) && IsPrime(int.Parse(q))&& int.Parse(p) * int.Parse(q) < 256 ){
                 RSA keygen = new RSA();
                 var keys = keygen.GenKeys(int.Parse(p), int.Parse(q));
                 if (!Directory.Exists(_environment.WebRootPath + "\\TempFiles\\"))
@@ -331,10 +335,11 @@ namespace EDll_L4_AFPE_DAVH.Controllers
                     zipOutputStream.SetLevel(9);
 
                     byte[] buffer = new byte[4096];
-                    var filesList = new List<string>();
-
-                    filesList.Add(_environment.WebRootPath + "\\TempFiles\\" + "private.key");
-                    filesList.Add(_environment.WebRootPath + "\\TempFiles\\" + "public.key");
+                    var filesList = new List<string>
+                    {
+                        _environment.WebRootPath + "\\TempFiles\\" + "private.key",
+                        _environment.WebRootPath + "\\TempFiles\\" + "public.key"
+                    };
 
                     for (int i = 0; i < filesList.Count; i++){
                         ZipEntry entry = new ZipEntry(Path.GetFileName(filesList[i]));
@@ -367,7 +372,61 @@ namespace EDll_L4_AFPE_DAVH.Controllers
                 return File(finalResult, "application/zip", filename);
             }
             else {
-                return StatusCode(500);
+                Response.Clear();
+                Response.StatusCode = 500; return Content("Error!" + "\n" + "Description: p & q must be prime numbers and the multiplication of both greater than 256.");                
+            }
+        }
+
+        [HttpPost("rsa/{name}")]
+        public IActionResult _RSA(string name, [FromForm] FileUPloadAPI2 objFile)
+        {
+            try
+            {
+                if (objFile.FILE != null)
+                {
+                    if (objFile.FILE.ElementAt(0).Length > 0 && objFile.FILE.ElementAt(1).Length > 0)
+                    {
+                        string uniqueFileName = objFile.FILE.ElementAt(0).FileName + "-" + Guid.NewGuid().ToString();
+                        string uniqueFileName2 = objFile.FILE.ElementAt(1).FileName + "-" + Guid.NewGuid().ToString();
+                        if (!Directory.Exists(_environment.WebRootPath + "\\Upload\\"))
+                        {
+                            Directory.CreateDirectory(_environment.WebRootPath + "\\Upload\\");
+                        }
+                        //Content
+                        using (FileStream fileStream = System.IO.File.Create(_environment.WebRootPath + "\\Upload\\" + uniqueFileName))
+                        {
+                            objFile.FILE.ElementAt(0).CopyTo(fileStream);
+                            fileStream.Flush();
+                        }
+                        //Keys
+                        using (FileStream fileStream2 = System.IO.File.Create(_environment.WebRootPath + "\\Upload\\" + uniqueFileName2))
+                        {
+                            objFile.FILE.ElementAt(1).CopyTo(fileStream2);
+                            fileStream2.Flush();
+                        }
+                        string keyFilecontent = System.IO.File.ReadAllText(_environment.WebRootPath + "\\Upload\\" + uniqueFileName2);
+                        string[] splitKeys = keyFilecontent.Split(',');
+                        byte[] content = System.IO.File.ReadAllBytes(_environment.WebRootPath + "\\Upload\\" + uniqueFileName);
+                        RSA _rsa = new RSA();
+
+                        return File(_rsa.RSApher(content, int.Parse(splitKeys[0]), int.Parse(splitKeys[1])), "application/text", name + ".txt");
+                    }
+                    else
+                    {
+                        Response.Clear();
+                        Response.StatusCode = 500; return Content("Error!" + "\n" + "Description: The File is empty.");
+                    }
+                }
+                else
+                {
+                    Response.Clear();
+                    Response.StatusCode = 500; return Content("Error!" + "\n" + "Description: Please upload a non-empty File.");
+                }
+            }
+            catch (Exception e)
+            {
+                Response.Clear();
+                Response.StatusCode = 500; return Content("Error!" + "\n" + "Description: " + e);
             }
         }
 
