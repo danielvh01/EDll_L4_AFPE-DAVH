@@ -12,36 +12,27 @@ namespace DataStructures
 
         #region Generate private and public Keys
         // int #1 and #2 are the public key (d,N) and int #3 and #4 the private key (e,N)
-        public (double,int,int,int) GenKeys(int p,int q)
+        public (double,int,int) GenKeys(int p,int q)
         {
             int N = p * q;
             int phiN = (p - 1)*(q - 1);
-            int e = 2;            
-            for (int i = 0; i < phiN; i++)
+            int e = 2;
+            while (e < phiN && (MCD(e, N) != 1 || MCD(e, phiN) != 1))
             {
-                if (e < N && Coprime(N, e) == true && Coprime(phiN, e) == true)      
-                {
-                    break;
-                }
-                else
-                {
-                    e++;
-                }
-            }
-            //int d = (1 % phiN) / e;
-            //int d = modInverse(e,phiN);             
-            int d = GetD(2,phiN,e);
-            return (d,N,e,N);
+                e++;
+            }            
+            int d = GetD(phiN,e);
+            return (e,N,d);
         }
 
-        static int modInverse(int a, int m)
-        {
+        //static int modInverse(int a, int m)
+        //{
 
-            for (int x = 1; x < m; x++)
-                if (((a % m) * (x % m)) % m == 1)
-                    return x;
-            return 1;
-        }
+        //    for (int x = 1; x < m; x++)
+        //        if (((a % m) * (x % m)) % m == 1)
+        //            return x;
+        //    return 1;
+        //}
 
 
         //int GetD(int k, int phiN, int e)
@@ -65,9 +56,10 @@ namespace DataStructures
         //    }
         //}
 
-        int GetD(int k, int phiN, int e)
+        int GetD(int phiN, int e)
         {
-            int d = 0;            
+            int d = 0;
+            int k = 2;
             //Choose d
             while ((d*e)%phiN != 1){
                 d = (1 + k * phiN) / e;
@@ -76,29 +68,40 @@ namespace DataStructures
             return d;            
         }
 
-        static int __gcd(int a, int b)
-        {            
-            if (a == 0 || b == 0)
-                return 0;
-            
-            if (a == b)
-                return a;
-            
-            if (a > b)
-                return __gcd(a - b, b);
-
-            return __gcd(a, b - a);
-        }
-
-
-        bool Coprime(int a, int b)
+        int MCD(int a, int b)
         {
-
-            if (__gcd(a, b) == 1)
-                return true;
-            else
-                return false;
+            int result = 0;
+            do
+            {
+                result = b;
+                b = a % b;
+                a = result;
+            }
+            while (b != 0);
+            return result;
         }
+
+        //int __gcd(int a, int b)
+        //{
+        //    if (a == 0 || b == 0)
+        //        return 0;
+
+        //    if (a == b)
+        //        return 0;
+
+        //    if (a > b)
+        //    {
+        //        int div = a / b;
+        //        a -= b * div;
+        //        return a;
+        //    }
+        //    else
+        //    {
+        //        int div = b / a;
+        //        b -= a * div;
+        //        return b;
+        //    }
+        //}
 
         #endregion
 
@@ -108,15 +111,13 @@ namespace DataStructures
         {
 
             List<byte> result = new List<byte>();
-            int byteLength = (int)Math.Round(Math.Log(k2) / Math.Log(256), 0, MidpointRounding.ToPositiveInfinity);
-            result.Add((byte)byteLength);
             foreach (byte c in content)
             {
-                int modPower = ModularPower(c, k1, k2);
-                for (int i = byteLength - 1; i >= 0; i--)
+                if(c > k2)
                 {
-                    result.Add((byte)(modPower / Math.Pow(256, i)));
+                    return null;
                 }
+                result.Add((byte)ModularPower(c, k1, k2));
             }
             return result.ToArray();
         }

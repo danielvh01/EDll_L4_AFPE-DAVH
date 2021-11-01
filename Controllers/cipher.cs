@@ -326,7 +326,7 @@ namespace EDll_L4_AFPE_DAVH.Controllers
                 }
                 using (StreamWriter outputFile = new StreamWriter(Path.Combine(_environment.WebRootPath + "\\TempFiles\\", "public.key")))
                 {
-                    outputFile.Write(keys.Item3 + "," + keys.Item4);
+                    outputFile.Write(keys.Item3 + "," + keys.Item2);
                 }
                 string filename = "RSAKeys.zip";
                 string tempOutput = _environment.WebRootPath + "\\TempFiles\\" + filename;
@@ -373,7 +373,7 @@ namespace EDll_L4_AFPE_DAVH.Controllers
             }
             else {
                 Response.Clear();
-                Response.StatusCode = 500; return Content("Error!" + "\n" + "Description: p & q must be prime numbers and the multiplication of both greater than 256.");                
+                Response.StatusCode = 500; return Content("Error!" + "\n" + "Description: p & q must be prime numbers and the multiplication of both lower than 256.");                
             }
         }
 
@@ -408,8 +408,17 @@ namespace EDll_L4_AFPE_DAVH.Controllers
                         string[] splitKeys = keyFilecontent.Split(',');
                         byte[] content = System.IO.File.ReadAllBytes(_environment.WebRootPath + "\\Upload\\" + uniqueFileName);
                         RSA _rsa = new RSA();
+                        byte[] result = _rsa.RSApher(content, int.Parse(splitKeys[0]), int.Parse(splitKeys[1]));
+                        if(result != null)
+                        {
 
-                        return File(_rsa.RSApher(content, int.Parse(splitKeys[0]), int.Parse(splitKeys[1])), "application/text", name + ".txt");
+                            return File(result, "application/text", name + ".txt");
+                        }
+                        else
+                        {
+                            Response.Clear();
+                            Response.StatusCode = 500; return Content("Error!" + "\n" + "Description: The keys are too low for this file and it cannot be decrypted correctly.");
+                        }
                     }
                     else
                     {
