@@ -4,9 +4,9 @@ using System.Text;
 
 namespace DataStructures
 {
-    public interface IZigzagCipher
+    public interface IZigzagCipher : ICipher<int>
     {
-        byte[] Cipher(string text, int Key);
-        byte[] Decipher(string text, int key);
+        byte[] Cipher(byte[] text, int key);
+        byte[] Decipher(byte[] text, int key);
     }
 }

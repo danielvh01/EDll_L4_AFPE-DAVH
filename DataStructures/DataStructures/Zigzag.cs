@@ -10,7 +10,7 @@ namespace DataStructures
         {
 
         }
-        public byte[] Cipher(string text, int Key)
+        public byte[] Cipher(byte[] text, int Key)
         {
             double x = Convert.ToDouble(text.Length) / Convert.ToDouble(2 + 2*(Key - 2));
             int cantOlas = Convert.ToInt32(Math.Round(x, MidpointRounding.ToPositiveInfinity));
@@ -65,7 +65,7 @@ namespace DataStructures
             return result;
         }
 
-        public byte[] Decipher(string text, int key)
+        public byte[] Decipher(byte[] text, int key)
         {
             int cantOlas = text.Length / (2 + 2 * (key - 2));
             byte[,] map = new byte[key, cantOlas*2];
