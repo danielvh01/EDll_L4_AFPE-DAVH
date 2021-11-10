@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Numerics;
+using System.Linq;
 
 namespace DataStructures
 {
@@ -12,54 +14,25 @@ namespace DataStructures
 
         #region Generate private and public Keys
         // int #1 and #2 are the public key (d,N) and int #3 and #4 the private key (e,N)
-        public (double,int,int) GenKeys(int p,int q)
+        public (BigInteger, BigInteger, BigInteger) GenKeys(int p,int q)
         {
-            int N = p * q;
-            int phiN = (p - 1)*(q - 1);
-            int e = 2;
+            BigInteger N = p * q;
+            BigInteger phiN = (p - 1)*(q - 1);
+            BigInteger e = 2;
             while (e < phiN && (MCD(e, N) != 1 || MCD(e, phiN) != 1))
             {
                 e++;
-            }            
-            int d = GetD(phiN,e);
+            }
+            BigInteger d = GetD(phiN,e);
             return (e,N,d);
         }
 
-        //static int modInverse(int a, int m)
-        //{
-
-        //    for (int x = 1; x < m; x++)
-        //        if (((a % m) * (x % m)) % m == 1)
-        //            return x;
-        //    return 1;
-        //}
 
 
-        //int GetD(int k, int phiN, int e)
-        //{            
-        //    int d = 0;            
-        //    int deq = 1;
-        //    //Choose d
-        //    while (deq != 0)
-        //    {
-        //        deq = (k * phiN + 1) % e;
-        //        k++;
-        //    }
-        //    d = ((k - 1) * phiN + 1) / e;
-        //    if (d == e)
-        //    {
-        //        return GetD(k, phiN, e);
-        //    }
-        //    else 
-        //    {
-        //        return d;                
-        //    }
-        //}
-
-        int GetD(int phiN, int e)
+        BigInteger GetD(BigInteger phiN, BigInteger e)
         {
-            int d = 0;
-            int k = 2;
+            BigInteger d = 0;
+            BigInteger k = 2;
             //Choose d
             while ((d*e)%phiN != 1){
                 d = (1 + k * phiN) / e;
@@ -68,9 +41,9 @@ namespace DataStructures
             return d;            
         }
 
-        int MCD(int a, int b)
+        BigInteger MCD(BigInteger a, BigInteger b)
         {
-            int result = 0;
+            BigInteger result = 0;
             do
             {
                 result = b;
@@ -81,27 +54,7 @@ namespace DataStructures
             return result;
         }
 
-        //int __gcd(int a, int b)
-        //{
-        //    if (a == 0 || b == 0)
-        //        return 0;
-
-        //    if (a == b)
-        //        return 0;
-
-        //    if (a > b)
-        //    {
-        //        int div = a / b;
-        //        a -= b * div;
-        //        return a;
-        //    }
-        //    else
-        //    {
-        //        int div = b / a;
-        //        b -= a * div;
-        //        return b;
-        //    }
-        //}
+        
 
         #endregion
 
@@ -109,24 +62,63 @@ namespace DataStructures
 
         public byte[] RSApher(byte[] content, int k1, int k2)
         {
-
-            List<byte> result = new List<byte>();
-            foreach (byte c in content)
+            
+            if (content[0] != 0)
             {
-                if(c > k2)
-                {
-                    return null;
+                byte[] cipheredContent;
+                byte[] enter = { default }; //defaut same as null
+                List<int> cipherText = new List<int>();
+                List<byte[]> arraySorter = new List<byte[]>();
+
+                foreach (int character in content){                    
+                    cipherText.Add((int)ModularPower(character, k1, k2));
                 }
-                result.Add((byte)ModularPower(c, k1, k2));
+
+                cipheredContent = cipherText.SelectMany(BitConverter.GetBytes).ToArray();
+                arraySorter.Add(enter);
+                arraySorter.Add(cipheredContent);
+                byte[] result = new byte[
+                                     arraySorter.ElementAt(0).Length +
+                                     arraySorter.ElementAt(1).Length];
+                int dstoffset = 0;
+                for (int i = 0; i < 2; i++)
+                {
+                    var element = arraySorter.ElementAt(i);
+                    Buffer.BlockCopy(element, 0, result, dstoffset, element.Length);
+                    dstoffset += element.Length;
+                }
+
+                return result;
             }
-            return result.ToArray();
+            else {
+                content = content.Skip(1).ToArray();
+                var cipheredBytes = new int[(content.Length / 4)];
+                Buffer.BlockCopy(content,0, cipheredBytes,0, content.Length -1);
+                List<byte> result = new List<byte>();
+                foreach (int c in cipheredBytes)
+                {
+                    result.Add((byte)(ModularPower(c, k1, k2)));
+                }
+                return result.ToArray();
+            }
+            
         }
 
-
-
-        int ModularPower(int x, int y, int p)
+        static byte[] Combine(params byte[][] arrays)
         {
-            int res = 1;
+            byte[] rv = new byte[arrays.Sum(a => a.Length)];
+            int offset = 0;
+            foreach (byte[] array in arrays)
+            {
+                System.Buffer.BlockCopy(array, 0, rv, offset, array.Length);
+                offset += array.Length;
+            }
+            return rv;
+        }
+
+        BigInteger ModularPower(BigInteger x, BigInteger y, BigInteger p)
+        {
+            BigInteger res = 1;
             x = x % p;                       
 
             if (x == 0){
