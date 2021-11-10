@@ -24,7 +24,7 @@ namespace Strings_Cihpher
                 switch (opcion)
                 {
                     case "1":
-                        ICaesarCipher chiper = new Caesar();
+                        ICipher<string> chiper = new Caesar();
                         Console.WriteLine("Escriba el texto que desea cifrar:");
                         string content = Console.ReadLine();
                         Console.WriteLine("Escriba la clave para el cifrado");
@@ -44,7 +44,7 @@ namespace Strings_Cihpher
                         Console.WriteLine(result);
                         break;
                     case "2":
-                        IZigzagCipher chiperz = new Zigzag();
+                        ICipher<int> chiperz = new Zigzag();
                         Console.WriteLine("Escriba el texto que desea cifrar:");
                         string contentz = Console.ReadLine();
                         Console.WriteLine("Escriba la clave para el cifrado");
@@ -95,7 +95,7 @@ namespace Strings_Cihpher
                         }
                         break;
                     case "3":
-                        ISDES chipers = new SDES(Environment.CurrentDirectory + @"\..\..\..\..\Configuration\");
+                        ICipher<int> chipers = new SDES(Environment.CurrentDirectory + @"\..\..\..\..\Configuration\");
                         Console.WriteLine("Escriba el texto que desea cifrar:");
                         string contents = Console.ReadLine();
                         Console.WriteLine("Escriba la clave para el cifrado");

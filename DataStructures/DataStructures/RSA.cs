@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace DataStructures
 {
-    public class RSA
+    public class RSA : ICipher<int[]>
     {
         public RSA()
         {
@@ -60,7 +60,16 @@ namespace DataStructures
 
         #region Cipher / Decipher method
 
-        public byte[] RSApher(byte[] content, int k1, int k2)
+        public byte[] Cipher(byte[] content, int[] keys)
+        {
+            return RSApher(content, keys[0], keys[1]);
+        }
+        public byte[] Decipher(byte[] content, int[] keys)
+        {
+            return RSApher(content, keys[0], keys[1]);
+        }
+
+        byte[] RSApher(byte[] content, int k1, int k2)
         {
             
             if (content[0] != 0)

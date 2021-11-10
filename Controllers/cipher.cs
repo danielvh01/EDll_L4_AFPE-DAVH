@@ -61,7 +61,7 @@ namespace EDll_L4_AFPE_DAVH.Controllers
                         if (method == "cesar")
                         {
                             string name = objFile.FILE.FileName;
-                            ICaesarCipher CaesarCipher = new Caesar();
+                            ICipher<string> CaesarCipher = new Caesar();
 
                             byte[] textCompressed = CaesarCipher.Cipher(content, key);
 
@@ -74,7 +74,7 @@ namespace EDll_L4_AFPE_DAVH.Controllers
                             int Key = 0;
                             if(int.TryParse(key, out Key))
                             {
-                                IZigzagCipher chipher = new Zigzag();
+                                ICipher<int> chipher = new Zigzag();
 
                                 byte[] textCompressed = chipher.Cipher(content, Key);
                                 return File(textCompressed, "application/text", name.Substring(0, name.Length - 4) + ".zz");
@@ -137,7 +137,7 @@ namespace EDll_L4_AFPE_DAVH.Controllers
                         {
                             string name = objFile.FILE.FileName;
                             string defName = name.Substring(0, name.Length - 4) + ".txt";
-                            ICaesarCipher CaesarCipher = new Caesar();
+                            ICipher<string> CaesarCipher = new Caesar();
 
                             byte[] textDecompressed = CaesarCipher.Decipher(content, key);
 
@@ -150,7 +150,7 @@ namespace EDll_L4_AFPE_DAVH.Controllers
                             {
                                 string name = objFile.FILE.FileName;
                                 string defName = name.Substring(0, name.Length - 3) + ".txt";
-                                IZigzagCipher chipher = new Zigzag();
+                                ICipher<int> chipher = new Zigzag();
 
                                 byte[] textDecompressed = chipher.Decipher(content, Key);
 
@@ -214,7 +214,7 @@ namespace EDll_L4_AFPE_DAVH.Controllers
 
                         byte[] content = System.IO.File.ReadAllBytes(_environment.WebRootPath + "\\Upload\\" + uniqueFileName);
 
-                        ISDES cipher = new SDES(Path.GetDirectoryName(@"Configuration\"));
+                        ICipher<int> cipher = new SDES(Path.GetDirectoryName(@"Configuration\"));
                         byte[] textCiphered = cipher.Cipher(content, secretKey);
                         string names = System.IO.File.ReadAllText(Environment.CurrentDirectory + "\\Names.txt");
                         System.IO.File.WriteAllText(Environment.CurrentDirectory + "\\Names.txt",names + objFile.FILE.FileName + "|" + name + ".sdes\n");
@@ -264,7 +264,7 @@ namespace EDll_L4_AFPE_DAVH.Controllers
                             
                         byte[] content = System.IO.File.ReadAllBytes(_environment.WebRootPath + "\\Upload\\" + uniqueFileName);
 
-                        ISDES cipher = new SDES(Path.GetDirectoryName(@"Configuration\"));
+                        ICipher<int> cipher = new SDES(Path.GetDirectoryName(@"Configuration\"));
 
                         byte[] textCiphered = cipher.Decipher(content, secretKey);
                         string originalFileName = objFile.FILE.FileName;
@@ -313,7 +313,7 @@ namespace EDll_L4_AFPE_DAVH.Controllers
         [HttpGet("rsa/keys/{p}/{q}")]
         public IActionResult RSAKeys(string p, string q)
         {
-            if (IsPrime(int.Parse(p)) && IsPrime(int.Parse(q))&& int.Parse(p) * int.Parse(q) < 256 ){
+            if (IsPrime(int.Parse(p)) && IsPrime(int.Parse(q))){
                 RSA keygen = new RSA();
                 var keys = keygen.GenKeys(int.Parse(p), int.Parse(q));
                 if (!Directory.Exists(_environment.WebRootPath + "\\TempFiles\\"))
@@ -373,7 +373,7 @@ namespace EDll_L4_AFPE_DAVH.Controllers
             }
             else {
                 Response.Clear();
-                Response.StatusCode = 500; return Content("Error!" + "\n" + "Description: p & q must be prime numbers and the multiplication of both lower than 256.");                
+                Response.StatusCode = 500; return Content("Error!" + "\n" + "Description: p & q must be prime numbers");                
             }
         }
 
@@ -406,9 +406,10 @@ namespace EDll_L4_AFPE_DAVH.Controllers
                         }
                         string keyFilecontent = System.IO.File.ReadAllText(_environment.WebRootPath + "\\Upload\\" + uniqueFileName2);
                         string[] splitKeys = keyFilecontent.Split(',');
+                        int[] keys = { int.Parse(splitKeys[0]), int.Parse(splitKeys[1]) };
                         byte[] content = System.IO.File.ReadAllBytes(_environment.WebRootPath + "\\Upload\\" + uniqueFileName);
-                        RSA _rsa = new RSA();
-                        byte[] result = _rsa.RSApher(content, int.Parse(splitKeys[0]), int.Parse(splitKeys[1]));
+                        ICipher<int[]> _rsa = new RSA();
+                        byte[] result = _rsa.Cipher(content, keys);
                         if(result != null)
                         {
 

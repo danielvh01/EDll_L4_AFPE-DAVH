@@ -4,7 +4,7 @@ using System.Text;
 
 namespace DataStructures
 {
-    public class Caesar : ICaesarCipher
+    public class Caesar : ICipher<string>
     {
         private Dictionary<char, int> dictionary;
         private Dictionary<int, char> dictionary2;

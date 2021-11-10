@@ -4,7 +4,7 @@ using System.Text;
 
 namespace DataStructures
 {
-    public class Zigzag : IZigzagCipher
+    public class Zigzag : ICipher<int>
     {
         public Zigzag()
         {

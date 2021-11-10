@@ -6,7 +6,7 @@ using System.Text;
 
 namespace DataStructures
 {
-    public class SDES : ISDES
+    public class SDES : ICipher<int>
     {
         string path;
         public SDES(string p)
